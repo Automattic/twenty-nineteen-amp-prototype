@@ -190,13 +190,20 @@ add_action( 'after_setup_theme', 'twentynineteen_setup' );
  * Add the AMP plugin check.
  */
 function twentynineteen_is_amp_endpoint() {
-
 	if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
 	    return true;
 	} else {
 		return false;
 	}
 }
+
+/**
+ * Disable the AMP plugin Twenty Nineteen specific sanitizer.
+ */
+add_filter( 'amp_content_sanitizers', function( $sanitizers ) {
+	unset( $sanitizers['AMP_Core_Theme_Sanitizer'] );
+	return $sanitizers;
+} );
 
 /**
  * Register widget area.
@@ -244,7 +251,12 @@ function twentynineteen_scripts() {
 
 	wp_style_add_data( 'twentynineteen-style', 'rtl', 'replace' );
 
-	if ( ! twentynineteen_is_amp_endpoint() ) {
+	if ( twentynineteen_is_amp_endpoint() && has_nav_menu( 'menu-1' ) ) {
+
+		wp_enqueue_script( 'twentynineteen-amp-sidebar', 'https://cdn.ampproject.org/v0/amp-sidebar-0.1.js', array(), '0.1', false );
+		wp_script_add_data( 'twentynineteen-amp-sidebar', 'defer', true );
+
+	} else {
 
 		if ( has_nav_menu( 'menu-1' ) ) {
 			wp_enqueue_script( 'twentynineteen-priority-menu', get_theme_file_uri( '/js/priority-menu.js' ), array(), '1.1', true );

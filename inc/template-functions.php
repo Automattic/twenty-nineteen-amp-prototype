@@ -33,6 +33,32 @@ function twentynineteen_body_classes( $classes ) {
 add_filter( 'body_class', 'twentynineteen_body_classes' );
 
 /**
+ * Adds async/defer attributes to enqueued / registered scripts.
+ *
+ * If #12009 lands in WordPress, this function can no-op since it would be handled in core.
+ *
+ * @link https://core.trac.wordpress.org/ticket/12009
+ * @param string $tag    The script tag.
+ * @param string $handle The script handle.
+ * @return array
+ */
+function twentynineteen_filter_script_loader_tag( $tag, $handle ) {
+	foreach ( array( 'async', 'defer' ) as $attr ) {
+	   if ( ! wp_scripts()->get_data( $handle, $attr ) ) {
+		   continue;
+	   }
+		// Prevent adding attribute when already added in #12009.
+	   if ( ! preg_match( ":\s$attr(=|>|\s):", $tag ) ) {
+		   $tag = preg_replace( ':(?=></script>):', " $attr", $tag, 1 );
+	   }
+		// Only allow async or defer, not both.
+	   break;
+   }
+	return $tag;
+}
+add_filter( 'script_loader_tag', 'twentynineteen_filter_script_loader_tag', 10, 2 );
+
+/**
  * Adds custom class to the array of posts classes.
  */
 function twentynineteen_post_classes( $classes, $class, $post_id ) {
@@ -418,4 +444,61 @@ function twentynineteen_hsl_hex( $h, $s, $l, $to_hex = true ) {
 	}
 
 	return "rgb($r, $g, $b)";
+}
+
+/**
+ * Render the Primary Nav Menu
+ *
+ * Uses amp-sidebar to handle
+ * slideout animation.
+ *
+ * Be sure to include the amp-sidebar component script.
+ * Also, rememeber that the amp-sidebar element must be
+ * a direct child of the <body>.
+ *
+ */
+function twentynineteen_render_amp_nav() {
+	?>
+	<amp-sidebar id="site-navigation" layout="nodisplay">
+		<ul>
+			<?php echo wp_kses_post( twentynineteen_clean_nav_menu_items( 'menu-1' ) ); ?>
+			<li on="tap:site-navigation.close"><?php esc_html_e( 'Menu', 'twentynineteen' ); ?></li>
+		</ul>
+	</amp-sidebar>
+
+	<?php // Note that "site-menu" matches the id of the amp-sidebar element. ?>
+	<button on='tap:site-navigation.toggle'><?php esc_html_e( 'Menu', 'twentynineteen' ); ?></button>
+	<?php
+}
+
+/**
+ * Render a menu with clean markup.
+ *
+ * @param string $location The desired Menu Location.
+ *
+ * @return string
+ */
+function twentynineteen_clean_nav_menu_items( $location ) {
+
+	$locations = get_nav_menu_locations();
+
+	if ( empty( $locations[ $location ] ) ) {
+		return '';
+	}
+
+	$menu = wp_get_nav_menu_object( $locations[ $location ] );
+	$menu_items = wp_get_nav_menu_items( $menu->term_id );
+
+	if ( empty( $menu_items ) || ! is_array( $menu_items ) ) {
+		return '';
+	}
+
+	ob_start();
+
+	foreach ( $menu_items as $key => $menu_item ) : ?>
+		<li><a href="<?php echo esc_url( $menu_item->url ); ?>"><?php echo esc_html( $menu_item->title ); ?></a></li>
+		<?php
+	endforeach;
+
+	return ob_get_clean();
 }
