@@ -43,6 +43,8 @@
 				);
 				?>
 			</nav><!-- #site-navigation -->
+		<?php else: ?>
+			<button on="tap:site-navigation.toggle" id="main-menu-toggle"><?php esc_html_e( 'Menu', 'twentynineteen' ); ?></button>
 		<?php endif; ?>
 
 	<?php endif; ?>

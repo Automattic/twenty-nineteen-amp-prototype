@@ -459,15 +459,20 @@ function twentynineteen_hsl_hex( $h, $s, $l, $to_hex = true ) {
  */
 function twentynineteen_render_amp_nav() {
 	?>
-	<amp-sidebar id="site-navigation" layout="nodisplay">
-		<ul>
-			<?php echo wp_kses_post( twentynineteen_clean_nav_menu_items( 'menu-1' ) ); ?>
-			<li on="tap:site-navigation.close"><?php esc_html_e( 'Menu', 'twentynineteen' ); ?></li>
+	<amp-sidebar id="site-navigation" layout="nodisplay" side="right">
+		<ul class="main-menu">
+			<?php
+
+			$close = '<li on="tap:site-navigation.close" class="mobile-parent-nav-menu-item" tabindex="-1"><button class="menu-item-link-return">%1$s%2$s</button></li>';
+
+			printf( $close,
+				twentynineteen_get_icon_svg( 'chevron_left', 24 ),
+				esc_html( 'Back', 'twentynineteen' )
+			);
+
+			echo wp_kses_post( twentynineteen_clean_nav_menu_items( 'menu-1' ) ); ?>
 		</ul>
 	</amp-sidebar>
-
-	<?php // Note that "site-menu" matches the id of the amp-sidebar element. ?>
-	<button on='tap:site-navigation.toggle'><?php esc_html_e( 'Menu', 'twentynineteen' ); ?></button>
 	<?php
 }
 

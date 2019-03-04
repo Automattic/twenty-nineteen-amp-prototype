@@ -503,3 +503,148 @@
 		opacity: 1;
 	}
 }
+
+/* AMP mobile main menu */
+
+#main-menu-toggle {
+	display: block;
+	margin-top: 1rem;
+}
+
+
+amp-sidebar[side] {
+
+	display: table;
+	margin-top: 0;
+	opacity: 1;
+	padding-left: 0;
+
+	/* Mobile position */
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	position: fixed;
+	width: 100vw;
+	height:  100vh;
+	max-width: 100vw;
+	background-color: $color__background-button;
+
+	/* Prevent menu from being blocked by admin bar */
+	.admin-bar & {
+		top: 46px;
+		height: calc( 100vh - 46px );
+
+		.sub-menu.expanded-true {
+			top: 0;
+		}
+
+		/* WP core breakpoint */
+		@media only screen and ( min-width: 782px ) {
+			top: 32px;
+			height: calc( 100vh - 32px );
+
+			.sub-menu.expanded-true {
+				top: 0;
+			}
+		}
+	}
+
+	ul {
+
+		background-color: $color__link;
+		color: $color__background-body;
+		list-style: none;
+		padding-left: 0;
+		margin: 0;
+
+		> li {
+
+			display: block;
+			float: none;
+			position: relative;
+
+			a,
+			.menu-item-link-return {
+
+				color: $color__background-body;
+				display: block;
+				line-height: $font__line-height-heading;
+				text-shadow: none;
+				padding: calc( .5 * #{$size__spacing-unit} ) calc( 24px + #{$size__spacing-unit} ) calc( .5 * #{$size__spacing-unit} ) $size__spacing-unit;
+				white-space: nowrap;
+
+				&:hover,
+				&:focus {
+					background: $color__link-hover;
+
+					&:after {
+						background: $color__link-hover;
+					}
+				}
+			}
+
+			.menu-item-link-return {
+				width: 100%;
+				font-size: $font__size_base;
+				font-weight: normal;
+				text-align: left;
+			}
+
+			&.mobile-parent-nav-menu-item {
+				font-size: $font__size-sm;
+				font-weight: normal;
+
+				svg {
+					position: relative;
+					top: 0.2rem;
+					margin-right: calc( .25 * #{$size__spacing-unit} );
+				}
+			}
+
+
+			&.menu-item-has-children {
+
+				.submenu-expand {
+					display: inline-block;
+					position: absolute;
+					width: calc( 24px + #{$size__spacing-unit} );
+					right: 0;
+					top: calc( .125 * #{$size__spacing-unit} );
+					bottom: 0;
+					color: white;
+					line-height: 1;
+					padding: calc( .5 * #{$size__spacing-unit} );
+
+					svg {
+						top: 0;
+					}
+				}
+
+				.submenu-expand {
+					margin-right: 0;
+				}
+
+				@include media(tablet) {
+
+					.menu-item-has-children > a {
+
+						&:after {
+							content: "\203a";
+						}
+					}
+				}
+			}
+
+
+			> a:empty {
+				display: none;
+			}
+
+		}
+	}
+}
+
+[class*="amphtml-sidebar-mask"] {
+	opacity: 0;
+}
