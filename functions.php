@@ -348,6 +348,12 @@ require get_template_directory() . '/classes/class-twentynineteen-svg-icons.php'
 require get_template_directory() . '/classes/class-twentynineteen-walker-comment.php';
 
 /**
+ * Custom AMP Menu Walker template.
+ */
+require get_template_directory() . '/classes/class-twentynineteen-walker-amp-menu.php';
+
+
+/**
  * Enhance the theme by hooking into WordPress.
  */
 require get_template_directory() . '/inc/template-functions.php';

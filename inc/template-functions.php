@@ -226,7 +226,7 @@ function twentynineteen_get_discussion_data() {
  */
 function twentynineteen_add_ellipses_to_nav( $nav_menu, $args ) {
 
-	if ( 'menu-1' === $args->theme_location ) :
+	if ( 'menu-1' === $args->theme_location && ! twentynineteen_is_amp_endpoint() ) :
 
 		$nav_menu .= '<div class="main-menu-more">';
 		$nav_menu .= '<ul class="main-menu">';
@@ -291,7 +291,7 @@ function twentynineteen_add_dropdown_icons( $output, $item, $depth, $args ) {
 		return $output;
 	}
 
-	if ( in_array( 'mobile-parent-nav-menu-item', $item->classes, true ) && isset( $item->original_id ) ) {
+	if ( in_array( 'mobile-parent-nav-menu-item', $item->classes, true ) && isset( $item->original_id ) && ! twentynineteen_is_amp_endpoint() ) {
 		// Inject the keyboard_arrow_left SVG inside the parent nav menu item, and let the item link to the parent item.
 		// @todo Only do this for nested submenus? If on a first-level submenu, then really the link could be "#" since the desire is to remove the target entirely.
 		$link = sprintf(
@@ -340,28 +340,37 @@ add_filter( 'walker_nav_menu_start_el', 'twentynineteen_add_dropdown_icons', 10,
  * @return array Amended nav menu items.
  */
 function twentynineteen_add_mobile_parent_nav_menu_items( $sorted_menu_items, $args ) {
-	static $pseudo_id = 0;
-	if ( ! isset( $args->theme_location ) || 'menu-1' !== $args->theme_location ) {
+
+	if ( ! twentynineteen_is_amp_endpoint() ) {
+
+		static $pseudo_id = 0;
+		if ( ! isset( $args->theme_location ) || 'menu-1' !== $args->theme_location ) {
+			return $sorted_menu_items;
+		}
+
+		$amended_menu_items = array();
+		foreach ( $sorted_menu_items as $nav_menu_item ) {
+			$amended_menu_items[] = $nav_menu_item;
+			if ( in_array( 'menu-item-has-children', $nav_menu_item->classes, true ) ) {
+				$parent_menu_item                   = clone $nav_menu_item;
+				$parent_menu_item->original_id      = $nav_menu_item->ID;
+				$parent_menu_item->ID               = --$pseudo_id;
+				$parent_menu_item->db_id            = $parent_menu_item->ID;
+				$parent_menu_item->object_id        = $parent_menu_item->ID;
+				$parent_menu_item->classes          = array( 'mobile-parent-nav-menu-item' );
+				$parent_menu_item->menu_item_parent = $nav_menu_item->ID;
+
+				$amended_menu_items[] = $parent_menu_item;
+			}
+		}
+
+		return $amended_menu_items;
+
+	} else {
 		return $sorted_menu_items;
 	}
 
-	$amended_menu_items = array();
-	foreach ( $sorted_menu_items as $nav_menu_item ) {
-		$amended_menu_items[] = $nav_menu_item;
-		if ( in_array( 'menu-item-has-children', $nav_menu_item->classes, true ) ) {
-			$parent_menu_item                   = clone $nav_menu_item;
-			$parent_menu_item->original_id      = $nav_menu_item->ID;
-			$parent_menu_item->ID               = --$pseudo_id;
-			$parent_menu_item->db_id            = $parent_menu_item->ID;
-			$parent_menu_item->object_id        = $parent_menu_item->ID;
-			$parent_menu_item->classes          = array( 'mobile-parent-nav-menu-item' );
-			$parent_menu_item->menu_item_parent = $nav_menu_item->ID;
 
-			$amended_menu_items[] = $parent_menu_item;
-		}
-	}
-
-	return $amended_menu_items;
 }
 add_filter( 'wp_nav_menu_objects', 'twentynineteen_add_mobile_parent_nav_menu_items', 10, 2 );
 
@@ -460,50 +469,32 @@ function twentynineteen_hsl_hex( $h, $s, $l, $to_hex = true ) {
 function twentynineteen_render_amp_nav() {
 	?>
 	<amp-sidebar id="site-navigation" layout="nodisplay" side="right">
-		<ul class="main-menu">
-			<?php
-
-			$close = '<li on="tap:site-navigation.close" class="mobile-parent-nav-menu-item" tabindex="-1"><button class="menu-item-link-return">%1$s%2$s</button></li>';
-
-			printf( $close,
-				twentynineteen_get_icon_svg( 'chevron_left', 24 ),
-				esc_html( 'Back', 'twentynineteen' )
-			);
-
-			echo wp_kses_post( twentynineteen_clean_nav_menu_items( 'menu-1' ) ); ?>
-		</ul>
+		<?php
+		 wp_nav_menu( array(
+			'theme_location'=>'menu-1',
+			'menu_class' => 'main-menu',
+			'walker'=>new TwentyNineteen_AMP_Menu_Walker()
+		)); ?>
 	</amp-sidebar>
 	<?php
 }
 
-/**
- * Render a menu with clean markup.
- *
- * @param string $location The desired Menu Location.
- *
- * @return string
- */
-function twentynineteen_clean_nav_menu_items( $location ) {
 
-	$locations = get_nav_menu_locations();
 
-	if ( empty( $locations[ $location ] ) ) {
-		return '';
+function twentynineteen_add_back_link_amp_menu( $items, $args ) {
+	if ( $args->theme_location == 'menu-1' ) {
+		// Add a close link as the first menu item.
+		$close = '<li on="tap:site-navigation.close" class="mobile-amp-nav-menu-item" tabindex="-1"><button class="menu-item-link-return">%1$s%2$s</button></li>';
+
+		$close = sprintf( $close,
+			twentynineteen_get_icon_svg( 'chevron_left', 24 ),
+			esc_html( 'Back', 'twentynineteen' )
+		);
+
+		$items = $close . $items;
 	}
 
-	$menu = wp_get_nav_menu_object( $locations[ $location ] );
-	$menu_items = wp_get_nav_menu_items( $menu->term_id );
-
-	if ( empty( $menu_items ) || ! is_array( $menu_items ) ) {
-		return '';
-	}
-
-	ob_start();
-
-	foreach ( $menu_items as $key => $menu_item ) : ?>
-		<li><a href="<?php echo esc_url( $menu_item->url ); ?>"><?php echo esc_html( $menu_item->title ); ?></a></li>
-		<?php
-	endforeach;
-
-	return ob_get_clean();
+	return $items;
 }
+
+add_filter( 'wp_nav_menu_items', 'twentynineteen_add_back_link_amp_menu', 10, 2 );
