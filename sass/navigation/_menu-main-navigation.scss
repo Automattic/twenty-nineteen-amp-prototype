@@ -629,17 +629,6 @@ amp-sidebar[side] {
 						background: transparent;
 					}
 				}
-
-
-				@include media(tablet) {
-
-					.menu-item-has-children > a {
-
-						&:after {
-							content: "\203a";
-						}
-					}
-				}
 			}
 
 
