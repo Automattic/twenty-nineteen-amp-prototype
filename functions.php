@@ -251,12 +251,7 @@ function twentynineteen_scripts() {
 
 	wp_style_add_data( 'twentynineteen-style', 'rtl', 'replace' );
 
-	if ( twentynineteen_is_amp_endpoint() && has_nav_menu( 'menu-1' ) ) {
-
-		wp_enqueue_script( 'twentynineteen-amp-sidebar', 'https://cdn.ampproject.org/v0/amp-sidebar-0.1.js', array(), '0.1', false );
-		wp_script_add_data( 'twentynineteen-amp-sidebar', 'defer', true );
-
-	} else {
+	if ( ! twentynineteen_is_amp_endpoint() ) {
 
 		if ( has_nav_menu( 'menu-1' ) ) {
 			wp_enqueue_script( 'twentynineteen-priority-menu', get_theme_file_uri( '/js/priority-menu.js' ), array(), '1.1', true );
@@ -271,6 +266,23 @@ function twentynineteen_scripts() {
 	}
 }
 add_action( 'wp_enqueue_scripts', 'twentynineteen_scripts' );
+
+/**
+ * Enqueue AMP scripts.
+ */
+function twentynineteen_amp_scripts( $data ) {
+
+	$custom_component_scripts = array(
+		'amp-sidebar'      => 'https://cdn.ampproject.org/v0/amp-sidebar-0.1.js',
+		'amp-accordion'    => 'https://cdn.ampproject.org/v0/amp-accordion-0.1.js',
+		'amp-bind'         => 'https://cdn.ampproject.org/v0/amp-bind-0.1.js',
+		'amp-live-list'    => 'https://cdn.ampproject.org/v0/amp-live-list-0.1.js'
+	);
+	$data['component_scripts'] = array_merge( $data['component_scripts'], $custom_component_scripts );
+	return $data;
+
+}
+add_action( 'amp_post_template_data', 'twentynineteen_amp_scripts' );
 
 /**
  * Fix skip link focus in IE11.
