@@ -71,32 +71,42 @@ $discussion = twentynineteen_get_discussion_data();
 		}
 
 		?>
-		<ol class="comment-list">
-			<?php
-			wp_list_comments(
-				array(
-					'walker'      => new TwentyNineteen_Walker_Comment(),
-					'avatar_size' => twentynineteen_get_avatar_size(),
-					'short_ping'  => true,
-					'style'       => 'ol',
-				)
-			);
-			?>
-		</ol><!-- .comment-list -->
-		<?php
+		<?php $sort_attr = ( 'asc' === get_option( 'comment_order' ) ) ? ' sort="ascending" ' : ''; ?>
+		<amp-live-list id="amp-live-comments-list-<?php the_ID(); ?>" class="live-list" layout="container" <?php echo $sort_attr; // WPCS: XSS OK. ?> data-poll-interval="<?php echo esc_attr( TWENTYNINETEEN_AMP_LIVE_LIST_POLL_INTERVAL ); ?>" data-max-items-per-page="<?php echo esc_attr( get_option( 'page_comments' ) ? get_option( 'comments_per_page' ) : 10000 ); ?>">
+			<ol items class="comment-list">
+				<?php
+				wp_list_comments(
+					array(
+						'walker'      => new TwentyNineteen_Walker_Comment(),
+						'avatar_size' => twentynineteen_get_avatar_size(),
+						'short_ping'  => true,
+						'style'       => 'ol',
+					)
+				);
+				?>
+			</ol><!-- .comment-list -->
 
-		// Show comment navigation
-		if ( have_comments() ) :
-			$prev_icon     = twentynineteen_get_icon_svg( 'chevron_left', 22 );
-			$next_icon     = twentynineteen_get_icon_svg( 'chevron_right', 22 );
-			$comments_text = __( 'Comments', 'twentynineteen' );
-			the_comments_navigation(
-				array(
-					'prev_text' => sprintf( '%s <span class="nav-prev-text"><span class="primary-text">%s</span> <span class="secondary-text">%s</span></span>', $prev_icon, __( 'Previous', 'twentynineteen' ), __( 'Comments', 'twentynineteen' ) ),
-					'next_text' => sprintf( '<span class="nav-next-text"><span class="primary-text">%s</span> <span class="secondary-text">%s</span></span> %s', __( 'Next', 'twentynineteen' ), __( 'Comments', 'twentynineteen' ), $next_icon ),
-				)
-			);
-		endif;
+			<div update class="live-list-button">
+				<button class="button" on="tap:amp-live-comments-list-<?php the_ID(); ?>.update"><?php esc_html_e( 'New comment(s)', 'twentynineteen' ); ?></button>
+			</div>
+
+			<?php
+
+			// Show comment navigation
+			if ( have_comments() ) :
+				$prev_icon     = twentynineteen_get_icon_svg( 'chevron_left', 22 );
+				$next_icon     = twentynineteen_get_icon_svg( 'chevron_right', 22 );
+				$comments_text = __( 'Comments', 'twentynineteen' );
+				the_comments_navigation(
+					array(
+						'prev_text' => sprintf( '%s <span class="nav-prev-text"><span class="primary-text">%s</span> <span class="secondary-text">%s</span></span>', $prev_icon, __( 'Previous', 'twentynineteen' ), __( 'Comments', 'twentynineteen' ) ),
+						'next_text' => sprintf( '<span class="nav-next-text"><span class="primary-text">%s</span> <span class="secondary-text">%s</span></span> %s', __( 'Next', 'twentynineteen' ), __( 'Comments', 'twentynineteen' ), $next_icon ),
+					)
+				);
+			endif; ?>
+		</amp-live-list>
+
+		<?php
 
 		// Show comment form at bottom if showing newest comments at the bottom.
 		if ( comments_open() && 'asc' === strtolower( get_option( 'comment_order', 'asc' ) ) ) :

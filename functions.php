@@ -17,6 +17,13 @@ if ( version_compare( $GLOBALS['wp_version'], '4.7', '<' ) ) {
 	return;
 }
 
+/**
+ * Interval for polling for updates to live-lists.
+ *
+ * @var int
+ */
+define( 'TWENTYNINETEEN_AMP_LIVE_LIST_POLL_INTERVAL', 15000 );
+
 if ( ! function_exists( 'twentynineteen_setup' ) ) :
 	/**
 	 * Sets up theme defaults and registers support for various WordPress features.
