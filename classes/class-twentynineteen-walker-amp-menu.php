@@ -155,7 +155,6 @@ class TwentyNineteen_AMP_Menu_Walker extends Walker_Nav_Menu {
 		$output .= '<li class="menu-item-has-children"><amp-accordion><section>';
 
 		$this->accordion_started = TRUE;
-		$this->enqueue_accordion = TRUE;
 	}
 
 
