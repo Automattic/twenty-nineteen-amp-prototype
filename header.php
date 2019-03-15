@@ -20,9 +20,7 @@
 </head>
 
 <body <?php body_class(); ?>>
-<?php if ( twentynineteen_is_amp_endpoint() ) : ?>
-	<?php twentynineteen_render_amp_nav(); ?>
-<?php endif; ?>
+<?php twentynineteen_render_amp_nav(); ?>
 
 <div id="page" class="site">
 	<a class="skip-link screen-reader-text" href="#content"><?php _e( 'Skip to content', 'twentynineteen' ); ?></a>
