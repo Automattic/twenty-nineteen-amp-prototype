@@ -121,9 +121,9 @@ class TwentyNineteen_AMP_Menu_Walker extends Walker_Nav_Menu {
 		if ( $this->has_children ) {
 			$this->start_accordion( $output, $depth );
 
-			$output .= '<li ' . $class_names . '>';
+			$output .= '<h2 ' . $class_names . '>';
 			$output .= $this->get_anchor_tag( $item, $depth, $args, $id );
-			$output .= '</li>';
+			$output .= '</h2>';
 
 			$this->start_accordion_child_wrapper( $output, $depth );
 
@@ -155,7 +155,6 @@ class TwentyNineteen_AMP_Menu_Walker extends Walker_Nav_Menu {
 		$output .= '<li class="menu-item-has-children"><amp-accordion><section>';
 
 		$this->accordion_started = TRUE;
-		$this->enqueue_accordion = TRUE;
 	}
 
 

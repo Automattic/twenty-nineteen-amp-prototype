@@ -484,7 +484,7 @@ function twentynineteen_render_amp_nav() {
 function twentynineteen_add_back_link_amp_menu( $items, $args ) {
 	if ( $args->theme_location == 'menu-1' ) {
 		// Add a close link as the first menu item.
-		$close = '<li on="tap:site-navigation.close" class="mobile-amp-nav-menu-item" tabindex="-1"><button class="menu-item-link-return">%1$s%2$s</button></li>';
+		$close = '<li on="tap:site-navigation.close" role="button" class="mobile-amp-nav-menu-item" tabindex="-1"><button class="menu-item-link-return">%1$s%2$s</button></li>';
 
 		$close = sprintf( $close,
 			twentynineteen_get_icon_svg( 'chevron_left', 24 ),
