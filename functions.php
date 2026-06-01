@@ -258,13 +258,20 @@ function twentynineteen_scripts() {
 
 	wp_style_add_data( 'twentynineteen-style', 'rtl', 'replace' );
 
+	// Enqueue to ensure that AMP scripts are printed even on pages that do not get post-processed by the AMP plugin (i.e. non-AMP pages).
+	if ( has_nav_menu( 'menu-1' ) ) {
+		wp_enqueue_script( 'amp-sidebar' );
+		wp_enqueue_script( 'amp-accordion' );
+	}
+
 	if ( ! twentynineteen_is_amp_endpoint() ) {
 
-		if ( has_nav_menu( 'menu-1' ) ) {
-			wp_enqueue_script( 'twentynineteen-priority-menu', get_theme_file_uri( '/js/priority-menu.js' ), array(), '1.1', true );
-			wp_enqueue_script( 'twentynineteen-touch-navigation', get_theme_file_uri( '/js/touch-keyboard-navigation.js' ), array(), '1.1', true );
+		// Include the boilerplate so that there is no flash of unstyled AMP components before the runtime loads in non-AMP pages.
+		if ( function_exists( 'amp_get_boilerplate_code' ) ) {
+			echo amp_get_boilerplate_code();
 		}
 
+		// @todo The print styles should be included in AMP as well.
 		wp_enqueue_style( 'twentynineteen-print-style', get_template_directory_uri() . '/print.css', array(), wp_get_theme()->get( 'Version' ), 'print' );
 
 		if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
@@ -296,6 +303,7 @@ add_action( 'amp_post_template_data', 'twentynineteen_amp_scripts' );
  *
  * This does not enqueue the script because it is tiny and because it is only for IE11,
  * thus it does not warrant having an entire dedicated blocking script being loaded.
+ * Note that the AMP runtime includes this logic so it is irrelevant in AMP.
  *
  * @link https://git.io/vWdr2
  */
