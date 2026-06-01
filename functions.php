@@ -275,23 +275,6 @@ function twentynineteen_scripts() {
 add_action( 'wp_enqueue_scripts', 'twentynineteen_scripts' );
 
 /**
- * Enqueue AMP scripts.
- */
-function twentynineteen_amp_scripts( $data ) {
-
-	$custom_component_scripts = array(
-		'amp-sidebar'      => 'https://cdn.ampproject.org/v0/amp-sidebar-0.1.js',
-		'amp-accordion'    => 'https://cdn.ampproject.org/v0/amp-accordion-0.1.js',
-		'amp-bind'         => 'https://cdn.ampproject.org/v0/amp-bind-0.1.js',
-		'amp-live-list'    => 'https://cdn.ampproject.org/v0/amp-live-list-0.1.js'
-	);
-	$data['component_scripts'] = array_merge( $data['component_scripts'], $custom_component_scripts );
-	return $data;
-
-}
-add_action( 'amp_post_template_data', 'twentynineteen_amp_scripts' );
-
-/**
  * Fix skip link focus in IE11.
  *
  * This does not enqueue the script because it is tiny and because it is only for IE11,
